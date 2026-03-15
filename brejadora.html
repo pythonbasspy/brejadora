@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🍺Brejadora🍺Calculadora de Cervejas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 0 20px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      color: #f5c518;
+      text-shadow: 0 0 20px rgba(245, 197, 24, 0.4);
+    }
+
+    header p {
+      color: #aaa;
+      margin-top: 6px;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      color: #f5c518;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #ccc;
+      margin-bottom: 6px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: #f5c518;
+    }
+
+    select option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .product-row .field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn-remove {
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid rgba(220, 53, 69, 0.4);
+      color: #ff6b6b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+      height: 42px;
+      align-self: flex-end;
+    }
+
+    .btn-remove:hover {
+      background: rgba(220, 53, 69, 0.4);
+    }
+
+    .btn-add {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px dashed rgba(245, 197, 24, 0.4);
+      background: rgba(245, 197, 24, 0.06);
+      color: #f5c518;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-add:hover {
+      background: rgba(245, 197, 24, 0.15);
+      border-color: #f5c518;
+    }
+
+    .btn-calc {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #f5c518, #e0a800);
+      color: #1a1a2e;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-calc:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 197, 24, 0.35);
+    }
+
+    .btn-calc:active {
+      transform: translateY(0);
+    }
+
+    /* Resultados */
+    #results {
+      display: none;
+    }
+
+    .result-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-item.winner {
+      background: rgba(245, 197, 24, 0.1);
+      border-color: #f5c518;
+      box-shadow: 0 0 20px rgba(245, 197, 24, 0.2);
+    }
+
+    .winner-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #f5c518;
+      color: #1a1a2e;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .result-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .stat-box {
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .stat-box .value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f5c518;
+    }
+
+    .result-item.winner .stat-box .value {
+      color: #f5c518;
+    }
+
+    .stat-box .label {
+      font-size: 0.72rem;
+      color: #999;
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .change-box {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .change-box span {
+      color: #6fcf97;
+      font-weight: 600;
+    }
+
+    .price-per-liter {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #bbb;
+    }
+
+    .price-per-liter strong {
+      color: #f5c518;
+    }
+
+    .summary-banner {
+      background: linear-gradient(135deg, rgba(245,197,24,0.15), rgba(245,197,24,0.05));
+      border: 1px solid rgba(245,197,24,0.3);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .summary-banner h3 {
+      font-size: 1rem;
+      color: #f5c518;
+      margin-bottom: 4px;
+    }
+
+    .summary-banner p {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .summary-banner .big {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .error-msg {
+      background: rgba(220, 53, 69, 0.15);
+      border: 1px solid rgba(220, 53, 69, 0.4);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .product-row {
+        grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>🍺Brejadora🍺Calculadora de Cervejas</h1>
+    <p>Descubra qual embalagem oferece mais litros pelo seu dinheiro</p>
+    <p>Desenvolvidor por: pythonbasspy</p>
+  </header>
+
+  <!-- Orçamento -->
+  <div class="card">
+    <h2>💰 Seu Orçamento</h2>
+    <label>Valor disponível (R$)</label>
+    <input type="number" id="budget" placeholder="Ex: 194.00" min="0" step="0.01" />
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- Produtos -->
+  <div class="card">
+    <h2>🛒 Produtos para Comparar</h2>
+    <div id="productList"></div>
+    <button class="btn-add" onclick="addProduct()">+ Adicionar produto</button>
+  </div>
+
+  <!-- Botão calcular -->
+  <button class="btn-calc" onclick="calculate()">🔍 Calcular Melhor Compra</button>
+
+  <!-- Resultados -->
+  <div id="results">
+    <br/>
+    <div class="card" style="padding:0; background:transparent; border:none;">
+      <div id="summaryBanner"></div>
+      <div id="resultList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SIZES = [
+    { label: "269ml (Garrafa pequena)", value: 269 },
+    { label: "300ml (Cracudinha)",       value: 300 },
+    { label: "310ml (Sleek)",            value: 310 },
+    { label: "330ml (Long Neck)",        value: 330 },
+    { label: "350ml (Lata Padrão)",      value: 350 },
+    { label: "473ml (Latão)",            value: 473 },
+    { label: "600ml (Garrafa)",          value: 600 },
+    { label: "1000ml (Litrão)",          value: 1000 },
+  ];
+
+  let productCount = 0;
+
+  function getSizeOptions(selectedValue = null) {
+    return SIZES.map(s =>
+      `<option value="${s.value}" ${selectedValue == s.value ? 'selected' : ''}>${s.label}</option>`
+    ).join('');
+  }
+
+  function addProduct(defaultSize = null, defaultPrice = '') {
+    productCount++;
+    const id = productCount;
+    const div = document.createElement('div');
+    div.className = 'product-row';
+    div.id = `product-${id}`;
+    div.innerHTML = `
+      <div class="field">
+        <label>Embalagem</label>
+        <select id="size-${id}">${getSizeOptions(defaultSize)}</select>
+      </div>
+      <div class="field">
+        <label>Preço unitário (R$)</label>
+        <input type="number" id="price-${id}" placeholder="Ex: 3.95"
+               min="0.01" step="0.01" value="${defaultPrice}" />
+      </div>
+      <button class="btn-remove" onclick="removeProduct(${id})" title="Remover">✕</button>
+    `;
+    document.getElementById('productList').appendChild(div);
+  }
+
+  function removeProduct(id) {
+    const el = document.getElementById(`product-${id}`);
+    if (el) el.remove();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  function calculate() {
+    const budgetRaw = parseFloat(document.getElementById('budget').value);
+
+    if (!budgetRaw || budgetRaw <= 0) {
+      showError('⚠️ Informe um valor de orçamento válido.');
+      return;
+    }
+
+    const rows = document.querySelectorAll('.product-row');
+    if (rows.length === 0) {
+      showError('⚠️ Adicione pelo menos um produto para comparar.');
+      return;
+    }
+
+    const products = [];
+    let hasError = false;
+
+    rows.forEach(row => {
+      const id = row.id.split('-')[1];
+      const sizeEl  = document.getElementById(`size-${id}`);
+      const priceEl = document.getElementById(`price-${id}`);
+
+      if (!sizeEl || !priceEl) return;
+
+      const size  = parseInt(sizeEl.value);
+      const price = parseFloat(priceEl.value);
+      const sizeName = SIZES.find(s => s.value === size)?.label || `${size}ml`;
+
+      if (!price || price <= 0) {
+        showError(`⚠️ Informe um preço válido para "${sizeName}".`);
+        hasError = true;
+        return;
+      }
+
+      // Quantos itens cabem no orçamento
+      const qty     = Math.floor(budgetRaw / price);
+      const spent   = qty * price;
+      const change  = budgetRaw - spent;
+      const totalMl = qty * size;
+      const totalL  = totalMl / 1000;
+      const pricePerLiter = price / (size / 1000);
+
+      products.push({ id, sizeName, size, price, qty, spent, change, totalMl, totalL, pricePerLiter });
+    });
+
+    if (hasError) return;
+
+    if (products.length === 0) {
+      showError('⚠️ Nenhum produto válido encontrado.');
+      return;
+    }
+
+    // Ordena por total de litros (desc)
+    products.sort((a, b) => b.totalL - a.totalL);
+
+    const winner = products[0];
+
+    // Monta resultados
+    const resultsDiv = document.getElementById('results');
+    const summaryBanner = document.getElementById('summaryBanner');
+    const resultList = document.getElementById('resultList');
+
+    summaryBanner.innerHTML = `
+      <div class="summary-banner">
+        <h3>💵 Orçamento disponível</h3>
+        <div class="big">R$ ${budgetRaw.toFixed(2).replace('.', ',')}</div>
+        <p>${products.length} produto${products.length > 1 ? 's' : ''} comparado${products.length > 1 ? 's' : ''}</p>
+      </div>
+    `;
+
+    resultList.innerHTML = '';
+
+    products.forEach((p, index) => {
+      const isWinner = index === 0;
+      const medals = ['🥇', '🥈', '🥉'];
+      const medal = medals[index] || '🍺';
+
+      const div = document.createElement('div');
+      div.className = `result-item ${isWinner ? 'winner' : ''}`;
+
+      div.innerHTML = `
+        ${isWinner ? '<div class="winner-badge">🏆 Melhor escolha</div>' : ''}
+        <div class="result-name">${medal} ${p.sizeName}</div>
+        <div class="result-grid">
+          <div class="stat-box">
+            <div class="value">${p.qty}</div>
+            <div class="label">Unidades</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">${p.totalL.toFixed(3).replace('.', ',')} L</div>
+            <div class="label">Total em litros</div>
+          </div>
+          <div class="stat-box">
+            <div class="value">R$ ${p.spent.toFixed(2).replace('.', ',')}</div>
+            <div class="label">Valor gasto</div>
+          </div>
+        </div>
+        <div class="change-box">
+          💸 Troco: <span>R$ ${p.change.toFixed(2).replace('.', ',')}</span>
+        </div>
+        <div class="price-per-liter">
+          📊 Preço por litro: <strong>R$ ${p.pricePerLiter.toFixed(2).replace('.', ',')}</strong>
+        </div>
+      `;
+
+      resultList.appendChild(div);
+    });
+
+    resultsDiv.style.display = 'block';
+    resultsDiv.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Inicia com 2 produtos de exemplo
+  addProduct(300, '2.10');
+  addProduct(350, '3.95');
+  addProduct(473, '6.80');
+</script>
+
+</body>
+</html>
